@@ -1,0 +1,237 @@
+/* Voice Guidance Module CSS */
+
+.voice-guidance-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 1000px;
+  padding-bottom: 40px;
+}
+
+.voice-guidance-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.voice-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.voice-card-title {
+  font-size: 18px;
+  color: #FFFFFF;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.voice-status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.voice-status-label {
+  font-size: 14px;
+  color: #94A3B8;
+  font-weight: 500;
+}
+
+.voice-status-value {
+  font-size: 14px;
+  color: #E2E8F0;
+  font-weight: 600;
+}
+
+.voice-status-value.success {
+  color: #34D399;
+}
+
+.voice-status-value.warning {
+  color: #FBBF24;
+}
+
+.voice-status-value.idle {
+  color: #60A5FA;
+}
+
+.voice-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.voice-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #FFF;
+  border-radius: 8px;
+  padding: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.voice-btn:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #60A5FA;
+  color: #60A5FA;
+}
+
+.voice-btn.active {
+  background: rgba(59, 130, 246, 0.25);
+  border-color: #3B82F6;
+  color: #60A5FA;
+}
+
+.voice-slider-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.voice-slider-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.voice-slider-label {
+  color: #94A3B8;
+  font-weight: 500;
+}
+
+.voice-slider-value {
+  color: #34D399;
+  font-weight: 700;
+}
+
+input[type=range].voice-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
+}
+
+input[type=range].voice-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 16px;
+  width: 16px;
+  border-radius: 50%;
+  background: #3B82F6;
+  cursor: pointer;
+  margin-top: -6px;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+input[type=range].voice-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 4px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.voice-textarea {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 12px;
+  color: #FFF;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  box-sizing: border-box;
+}
+
+.voice-textarea:focus {
+  outline: none;
+  border-color: #3B82F6;
+}
+
+.voice-full-btn {
+  background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+  color: #FFF;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.voice-full-btn:hover {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.keyboard-shortcut {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.key-badge {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: monospace;
+  color: #E2E8F0;
+  font-weight: 700;
+}
+
+.key-desc {
+  font-size: 13px;
+  color: #94A3B8;
+}
+
+/* Checkbox Toggle */
+.voice-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.voice-toggle-label {
+  font-size: 14px;
+  color: #E2E8F0;
+}
+
+.voice-select {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  color: #FFF;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+  margin-bottom: 8px;
+}
+
+.voice-select option {
+  background: #1E293B;
+  color: #FFF;
+}

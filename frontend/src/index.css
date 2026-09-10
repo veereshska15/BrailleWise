@@ -1,0 +1,52 @@
+/* Clean reset for layout container */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  background-color: #F7FAFC;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* --- SETTINGS ACCESSIBILITY OVERRIDES --- */
+
+/* Font Scaling */
+body.font-small {
+  font-size: 0.9rem;
+}
+body.font-large {
+  font-size: 1.1rem;
+}
+
+/* Reduce Animations */
+body.reduce-animations * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* High Contrast Override (Forces distinct boundaries) */
+body.high-contrast * {
+  border-color: #FFFFFF !important;
+}
+body.high-contrast .dashboard-workspace,
+body.high-contrast .sidebar-container {
+  background-color: #000000 !important;
+}
+
+/* Light Theme Override (Basic inversion logic for accessibility) */
+body.theme-light {
+  filter: invert(1) hue-rotate(180deg);
+  background: #FFFFFF !important;
+}
+/* Prevent images/videos from inverting in light theme */
+body.theme-light img,
+body.theme-light svg {
+  filter: invert(1) hue-rotate(180deg);
+}
