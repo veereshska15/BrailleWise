@@ -391,7 +391,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
     <img src="https://img.shields.io/badge/🌐%20PORTFOLIO-7B2CFF?style=for-the-badge&logoColor=white" alt="Portfolio"/>
   </a>
   &nbsp;
-  <a href="https://www.linkedin.com/in/veeresh-s-anavatti-vrtkp-ttr-163742330" target="_blank">
+  <a href="https://www.linkedin.com/in/iamveereshs14/" target="_blank">
     <img src="https://img.shields.io/badge/LinkedIn-C77DFF?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/>
   </a>
   &nbsp;
@@ -415,7 +415,7 @@ This project is licensed under the **MIT License** — see the [LICENSE](LICENSE
 | 🎓 **USN** | `4SF23CI184` |
 | 🏛 **Institution** | **Sahyadri College of Engineering and Management, Mangalore** |
 | 💻 **Specialization** | Artificial Intelligence & Machine Learning (AIML) |
-| 💼 **LinkedIn** | [linkedin.com/in/veeresh-s-anavatti-vrtkp-ttr-163742330](https://www.linkedin.com/in/veeresh-s-anavatti-vrtkp-ttr-163742330) |
+| 💼 **LinkedIn** | [linkedin.com/in/iamveereshs14](https://www.linkedin.com/in/iamveereshs14/) |
 | 🐙 **GitHub** | [@veereshska15](https://github.com/veereshska15) |
 | 🧩 **LeetCode** | [leetcode.com/veereshska15](https://www.leetcode.com/veereshska15) |
 | 🌐 **Portfolio** | [veeresh-portofoli0.vercel.app](https://veeresh-portofoli0.vercel.app/) |
