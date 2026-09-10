@@ -1,22 +1,43 @@
 <div align="center">
 
-# ⠃⠗⠁⠊⠇⠇⠑⠺⠊⠎⠑
-# BrailleWise
-### *Next-Generation Assistive Braille Learning & Tactile IoT Ecosystem*
+⠃⠗⠁⠊⠇⠇⠑⠺⠊⠎⠑
 
-[![Python 3.13+](https://img.shields.io/badge/Python-3.13+-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
-[![Flask Backend](https://img.shields.io/badge/Flask-3.0-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
-[![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
-[![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![ESP32](https://img.shields.io/badge/ESP32-WROOM--32-E7352C?style=for-the-badge&logo=espressif&logoColor=white)](https://espressif.com)
-[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://mongodb.com)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:090014,25:1b0633,55:4b1687,80:7b2cff,100:c77dff&height=250&section=header&text=BRAILLEWISE&fontSize=72&fontColor=ffffff&fontAlignY=38&desc=ASSISTIVE%20BRAILLE%20LEARNING%20%7C%20TACTILE%20IOT&descAlignY=62&descSize=18&descColor=e6ccff&animation=fadeIn" width="100%" alt="BrailleWise Header Banner" />
 
 <br/>
 
-**BrailleWise** is an intelligent, multi-modal assistive learning platform designed to empower visually impaired learners, educators, and enthusiasts. By bridging modern web technologies with physical IoT hardware, BrailleWise synchronizes real-time tactile solenoid actuation, physical Perkins-style keyboard chording, audio guidance, and adaptive analytics into a seamless educational experience.
+<img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=700&size=20&duration=2500&pause=800&color=C77DFF&center=true&vCenter=true&width=950&lines=%3E+TACTILE+LEARNING+SYSTEM+ONLINE;%3E+BRAILLE+%7C+AUDIO+%7C+IOT;%3E+ESP32+%7C+REACT+%7C+FLASK;%3E+ACCESSIBILITY+MEETS+INTELLIGENT+TECHNOLOGY;%3E+FEEL+%E2%80%A2+HEAR+%E2%80%A2+LEARN" alt="BrailleWise Typing Animation" />
 
-[Key Features](#-key-features) • [System Architecture](#-system-architecture) • [Hardware Specifications](#-hardware-specifications) • [Quickstart](#-quickstart-guide) • [REST API](#-rest-api-reference) • [Circuit Pinout](#-circuit-pinout--schematics)
+<br/><br/>
+
+[![Braille](https://img.shields.io/badge/BRAILLE-7B2CFF?style=for-the-badge&logoColor=white)](https://github.com/veereshska15/BrailleWise)
+[![Tactile](https://img.shields.io/badge/TACTILE-C77DFF?style=for-the-badge&logoColor=white)](https://github.com/veereshska15/BrailleWise)
+[![Accessibility](https://img.shields.io/badge/ACCESSIBILITY-6A1FB3?style=for-the-badge&logoColor=white)](https://github.com/veereshska15/BrailleWise)
+[![ESP32](https://img.shields.io/badge/ESP32-4B1687?style=for-the-badge&logo=espressif&logoColor=white)](https://espressif.com)
+[![MongoDB](https://img.shields.io/badge/MONGODB-7B2CFF?style=for-the-badge&logo=mongodb&logoColor=white)](https://mongodb.com)
+
+<br/>
+
+[![Python 3.13](https://img.shields.io/badge/Python-3.13+-3776AB?style=flat-square&logo=python&logoColor=white)](https://python.org)
+[![Flask](https://img.shields.io/badge/Flask-3.0-000000?style=flat-square&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![React 19](https://img.shields.io/badge/React-19.0-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-6.0-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![C++](https://img.shields.io/badge/C++-17-00599C?style=flat-square&logo=c%2B%2B&logoColor=white)](https://isocpp.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+
+### *Next-Generation Assistive Braille Learning & Tactile IoT Ecosystem*
+
+<p align="center">
+  <a href="#-key-features"><b>Key Features</b></a> •
+  <a href="#-overview"><b>Overview</b></a> •
+  <a href="#-interactive-system-flowchart"><b>Flowchart</b></a> •
+  <a href="#-system-architecture"><b>Architecture</b></a> •
+  <a href="#-technology-stack"><b>Tech Stack</b></a> •
+  <a href="#-hardware-specifications--schematics"><b>Hardware</b></a> •
+  <a href="#-quickstart-guide"><b>Quickstart</b></a> •
+  <a href="#-rest-api-reference"><b>REST API</b></a> •
+  <a href="#-author--connect-with-me"><b>Contact</b></a>
+</p>
 
 </div>
 
@@ -26,13 +47,73 @@
 
 | Feature | Description |
 | :--- | :--- |
-| 🖐 **Tactile Solenoid Cell** | Real-time physical actuation of 6-dot Braille cells via electromagnetic solenoids / micro-servos for authentic haptic tactile touch. |
-| ⌨️ **Perkins Chording Input** | 6-key multi-touch Perkins keyboard engine with debounce algorithms and chord-to-character bitmask decoding (Dots 1–6 + Space, Backspace, Enter). |
-| 🌐 **Zero-Config mDNS (`braillewise.local`)** | Automatic local domain name resolution and auto-announcement handshake between the ESP32 and the laptop backend — no manual IP hunting required. |
-| 📶 **Dual Operation Modes** | Seamlessly toggle between **Wi-Fi REST Mode** (interactive sync with web lessons) and **Bluetooth Low Energy (BLE)** (wireless HID keyboard). |
-| 🎙 **Multi-Modal Audio Guidance** | Web Speech synthesis engine providing step-by-step spoken feedback, letter phonetics, and audio buzzer cues for tactile learners. |
-| 📚 **Adaptive Learning Pathways** | Structured curriculum covering English Braille Alphabet, numbers, punctuation, contractions, and interactive practice challenges. |
-| 📊 **Real-Time Analytics & Scoring** | MongoDB-backed performance tracking recording response times, accuracy percentages, mastery milestones, and error trends. |
+| 🖐️ **Tactile Solenoid Cell** | Real-time physical actuation of 6-dot Braille cells using electromagnetic push-pull solenoids / micro-servos for authentic tactile learning. |
+| ⌨️ **Perkins Chording Input** | 6-key multi-touch Perkins keyboard with debounce handling and chord-to-character bitmask decoding for Dots 1–6 plus Space, Backspace, and Enter. |
+| 🌐 **Zero-Config mDNS** | Automatic local domain resolution through `http://braillewise.local`, removing the need for manual ESP32 IP discovery. |
+| 📶 **Dual Operation Modes** | Switch seamlessly between **Wi-Fi REST Mode** for web lesson synchronization and **Bluetooth Low Energy (BLE)** for wireless HID keyboard input. |
+| 🎙️ **Multi-Modal Audio Guidance** | Spoken step-by-step feedback, letter phonetics, and audio buzzer cues support learners through tactile exercises. |
+| 📚 **Adaptive Learning Pathways** | Structured lessons for English Braille alphabet, numbers, punctuation, contractions, and interactive practice challenges. |
+| 📊 **Real-Time Analytics & Scoring** | MongoDB-backed tracking for response time, accuracy, mastery milestones, progress, and error trends. |
+
+---
+
+## 📖 Overview
+
+BrailleWise is designed around **four accessible interaction channels**:
+
+| Interaction Channel | BrailleWise Experience |
+| :--- | :--- |
+| 🖐️ **Touch** | Physical Braille dots rise and fall through tactile actuators in sync with lessons. |
+| ⌨️ **Input** | Users enter characters through a physical Perkins-style chording keyboard. |
+| 🔊 **Audio** | Spoken speech synthesis guidance and buzzer feedback reinforce tactile learning. |
+| 💻 **Digital** | React lessons, practice activities, quizzes, and analytics provide the visual and learning layer. |
+
+> The platform bridges software and embedded hardware so that learning content can be experienced through **touch, sound, and physical interaction** rather than relying solely on a visual screen.
+
+---
+
+## 🔄 Interactive System Flowchart
+
+```mermaid
+flowchart TD
+    subgraph User["👤 Learner Interaction"]
+        A[Learner Selects Lesson / Practice] --> B{Interaction Mode}
+        B -->|Tactile Perception| C[Feel Actuator Pins Dots 1-6]
+        B -->|Perkins Chording| D[Press Physical Keys on ESP32]
+        B -->|Audio Guidance| E[Listen to Speech Prompts & Buzzer]
+    end
+
+    subgraph Hardware["⚡ ESP32 Embedded IoT Controller"]
+        D --> F[6-Key Debounce & Bitmask Engine]
+        F --> G{Operating Mode}
+        G -->|Wi-Fi Mode| H[HTTP REST Client & Server / mDNS]
+        G -->|BLE Mode| I[Bluetooth HID Keyboard Emulation]
+        J[Solenoid Actuator Driver ULN2003] --> C
+        K[Buzzer Tones & OLED Screen] --> E
+    end
+
+    subgraph Backend["🐍 Flask REST API & Core Services"]
+        H <-->|JSON Stream :5000| L[Hardware Proxy Blueprint]
+        L <--> M[Braille Bitmask Translation Service]
+        N[Auth & JWT Service] <--> O[Lesson & Quiz Intelligence Engine]
+        O --> P[Performance & Assessment Service]
+    end
+
+    subgraph Database["🍃 MongoDB Atlas Cloud"]
+        P <--> Q[(User Profiles & Progress)]
+        O <--> R[(Curriculum & Challenges)]
+        P <--> S[(Analytics & Attempt History)]
+    end
+
+    subgraph Frontend["⚛️ React 19 + Vite Interface"]
+        A <--> T[Lesson Player & Audio Synthesizer]
+        T <-->|HTTP / Axios| L
+        T <-->|State / Context| U[Interactive Virtual Braille Cell]
+        I -.->|Direct Keystrokes| T
+    end
+
+    L <-->|Actuate Solenoid Pattern| J
+```
 
 ---
 
@@ -41,61 +122,81 @@
 BrailleWise employs a tripartite architecture linking the web interface, application services, and physical embedded controllers:
 
 ```text
-  +-------------------------------------------------------------------------+
-  |                          CLIENT TIER (React 19 + Vite)                   |
-  |  - Interactive Lesson Player         - Perkins Virtual Keypad           |
-  |  - Audio / Speech Guidance Engine     - Hardware Settings (mDNS Bridge)  |
-  +------------------------------------+------------------------------------+
-                                       |
-                                       | HTTP REST / JSON (Port 5000)
-                                       v
-  +-------------------------------------------------------------------------+
-  |                        BACKEND API TIER (Flask + Python 3.13)            |
-  |  - Authentication & JWT Sessions     - Hardware Communication Proxy      |
-  |  - Dynamic Lesson / Quiz Engine      - Braille Bitmask Translation       |
-  |  - MongoDB Atlas Cloud Persistence   - Active Device Registry            |
-  +------------------------------------+------------------------------------+
-                                       |
-                   +-------------------+-------------------+
-                   | (Wi-Fi REST / mDNS)                   | (BLE HID Mode)
-                   v                                       v
-  +----------------------------------+   +----------------------------------+
-  |     ESP32 REST WEB SERVER        |   |    BLUETOOTH LOW ENERGY (BLE)    |
-  |  Host: http://braillewise.local  |   |    "BrailleWise Keyboard" HID    |
-  |  Endpoints:                      |   |    - Types decoded chords        |
-  |    - POST /set-pattern           |   |      directly into laptop input  |
-  |    - GET  /read-buttons          |   |      fields as standard keyboard |
-  +----------------+-----------------+   +----------------+-----------------+
-                   |                                      |
-                   +------------------+-------------------+
-                                      |
-                                      v
-  +-------------------------------------------------------------------------+
-  |                        PHYSICAL EMBEDDED HARDWARE                       |
-  |  [6x Actuator Solenoids]   [6x Perkins Push Buttons]   [Action Keys]     |
-  |  [Active Piezo Buzzer]     [SSD1306 0.96" OLED]        [Mode Switch]     |
-  +-------------------------------------------------------------------------+
++-------------------------------------------------------------------------+
+|                       CLIENT TIER (React 19 + Vite)                     |
+|  - Interactive Lesson Player         - Perkins Virtual Keypad           |
+|  - Audio / Speech Guidance Engine     - Hardware Settings (mDNS Bridge)  |
++------------------------------------+------------------------------------+
+                                     |
+                                     | HTTP REST / JSON (Port 5000)
+                                     v
++-------------------------------------------------------------------------+
+|                     BACKEND API TIER (Flask + Python 3.13)              |
+|  - Authentication & JWT Sessions     - Hardware Communication Proxy     |
+|  - Dynamic Lesson / Quiz Engine      - Braille Bitmask Translation      |
+|  - MongoDB Atlas Cloud Persistence   - Active Device Registry           |
++------------------------------------+------------------------------------+
+                                     |
+                 +-------------------+-------------------+
+                 | (Wi-Fi REST / mDNS)                   | (BLE HID Mode)
+                 v                                       v
++----------------------------------+   +----------------------------------+
+|     ESP32 REST WEB SERVER        |   |    BLUETOOTH LOW ENERGY (BLE)    |
+|  Host: http://braillewise.local  |   |    "BrailleWise Keyboard" HID    |
+|  Endpoints:                      |   |    - Types decoded chords        |
+|    - POST /set-pattern           |   |      directly into laptop input  |
+|    - GET  /read-buttons          |   |      fields as standard keyboard |
++----------------+-----------------+   +----------------+-----------------+
+                 |                                      |
+                 +------------------+-------------------+
+                                    |
+                                    v
++-------------------------------------------------------------------------+
+|                        PHYSICAL EMBEDDED HARDWARE                       |
+|  [6x Actuator Solenoids]   [6x Perkins Push Buttons]   [Action Keys]    |
+|  [Active Piezo Buzzer]     [SSD1306 0.96" OLED]        [Mode Switch]    |
++-------------------------------------------------------------------------+
 ```
 
 ---
 
-## 🔌 Hardware Specifications
+## 🛠 Technology Stack
 
-### Bill of Materials (BOM)
+### Programming Languages & Frameworks
 
-* **Microcontroller**: ESP32 WROOM-32 Dev Module (Dual-core 240 MHz, Wi-Fi & BLE 4.2)
-* **Tactile Actuators**: 6× 5V Push-Pull Solenoids or Linear Micro-Servos
-* **Actuator Driver**: ULN2003 / Darlington Transistor Array or MOSFET Module (IRLZ44N)
-* **Perkins Keys**: 6× Tactile Momentary Push Buttons (Dots 1–6, internal pull-ups)
-* **System Keys**: 3× Push Buttons (Space, Backspace, Enter / Submit)
-* **Mode Switch**: 1× SPST Toggle Switch (Wi-Fi Server vs. BLE Keyboard Mode)
-* **Audio Feedback**: 1× Active Piezo Buzzer Module (PWM tone generation)
-* **Visual Display**: *(Optional)* 0.96" I2C SSD1306 OLED Display ($128 \times 64$)
-* **Power**: 5V 2A external DC power supply / USB connection
+| Domain | Technology | Purpose | Badge |
+| :--- | :--- | :--- | :--- |
+| **Frontend UI** | React 19 | Declarative UI, state management, component tree | <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" height="25"/> |
+| **Frontend Tooling** | Vite 6 | Lightning-fast HMR and bundle compilation | <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" height="25"/> |
+| **Backend Framework** | Flask 3.0 | Lightweight RESTful microservice API | <img src="https://img.shields.io/badge/Flask-000000?style=for-the-badge&logo=flask&logoColor=white" height="25"/> |
+| **Backend Language** | Python 3.13 | High-performance application backend | <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" height="25"/> |
+| **Microcontroller** | C++ / Arduino Core | ESP32 low-latency firmware & hardware interrupts | <img src="https://img.shields.io/badge/C%2B%2B-00599C?style=for-the-badge&logo=c%2B%2B&logoColor=white" height="25"/> |
+| **Database** | MongoDB Atlas | NoSQL document storage for users & analytics | <img src="https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white" height="25"/> |
+| **Styling** | Vanilla CSS3 | Custom high-contrast, accessible UI design system | <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" height="25"/> |
+| **Accessibility** | Web Speech API | Client-side audio speech prompt synthesis | <img src="https://img.shields.io/badge/Web_Speech-FFA500?style=for-the-badge&logo=google&logoColor=white" height="25"/> |
+| **Wireless Protocol** | BLE & mDNS | Wireless keyboard HID & zero-config IP discovery | <img src="https://img.shields.io/badge/Bluetooth_BLE-0082FC?style=for-the-badge&logo=bluetooth&logoColor=white" height="25"/> |
 
 ---
 
-## ⚡ Circuit Pinout & Schematics
+## 🔌 Hardware Specifications & Schematics
+
+### Bill of Materials (BOM)
+
+| Component | Specification | Quantity | Purpose |
+| :--- | :--- | :---: | :--- |
+| **Microcontroller** | ESP32 WROOM-32 Dev Module | 1 | Dual-core CPU, Wi-Fi 802.11 b/g/n, BLE 4.2 |
+| **Tactile Solenoids** | 5V Push-Pull Electromagnetic Actuators | 6 | Raises and lowers physical Braille cell dots 1–6 |
+| **Motor Driver** | ULN2003 / Darlington Transistor Module | 1 | Current amplification for driving solenoids |
+| **Perkins Buttons** | Tactile Momentary Push Switches | 6 | Chording input keys (Dots 1 to 6) |
+| **Action Keys** | Tactile Momentary Push Switches | 3 | Space, Backspace, and Enter / Submit keys |
+| **Mode Switch** | SPST Slider or Toggle Switch | 1 | Switch between Wi-Fi Server and BLE Keyboard mode |
+| **Piezo Buzzer** | 5V Active Buzzer Module | 1 | Audio feedback for chords, errors, and prompts |
+| **OLED Display** | 0.96" I2C SSD1306 ($128 \times 64$) *(Optional)* | 1 | Visual feedback, IP display, active letter monitor |
+| **Power Source** | 5V 2A DC Adapter or USB Port | 1 | Stable voltage supply for solenoids & ESP32 |
+
+---
+
+### Circuit Schematics & Pinout
 
 ```text
                            +---------------------------------------+
@@ -126,7 +227,7 @@ BrailleWise employs a tripartite architecture linking the web interface, applica
                            +---------------------------------------+
 ```
 
-> **Note on Pin Assignments**: Dot 6 button is mapped to **GPIO 15** to eliminate hardware resource contention with the I2C OLED display line on **GPIO 21 (SDA)**.
+> **Engineering Note**: Dot 6 button is mapped to **GPIO 15** (instead of GPIO 21) to prevent pin contention with the I2C OLED display line on **GPIO 21 (SDA)**.
 
 ---
 
@@ -134,37 +235,37 @@ BrailleWise employs a tripartite architecture linking the web interface, applica
 
 ### 1. Prerequisites
 
-* **Python**: 3.10 to 3.13
-* **Node.js**: 18+ and npm
-* **Arduino CLI** or **Arduino IDE** (with ESP32 board core v3.x installed)
-* **MongoDB**: Local MongoDB community instance or free MongoDB Atlas URI
+* **Python**: 3.10 to 3.13 installed
+* **Node.js**: 18+ and npm installed
+* **Arduino CLI** or **Arduino IDE** (with `esp32:esp32` board core v3.x)
+* **MongoDB**: Local MongoDB community instance or free MongoDB Atlas cluster
 
 ---
 
 ### 2. Backend Setup
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone https://github.com/veereshska15/BrailleWise.git
 cd BrailleWise/backend
 
-# Create and activate virtual environment
+# 2. Create and activate a Python virtual environment
 python -m venv venv
-# Windows:
+# On Windows:
 .\venv\Scripts\activate
-# Linux/macOS:
+# On Linux/macOS:
 source venv/bin/activate
 
-# Install dependencies
+# 3. Install required Python packages
 pip install -r requirements.txt
 
-# Configure environment variables (or copy template)
+# 4. Configure environment variables (or copy template)
 cp ../.env.example ../.env
 
-# Launch the Flask API server
+# 5. Launch the Flask API server
 python app.py
 ```
-Backend API will be live at: `http://127.0.0.1:5000`
+* Backend will be live at: **`http://127.0.0.1:5000`**
 
 ---
 
@@ -173,13 +274,13 @@ Backend API will be live at: `http://127.0.0.1:5000`
 ```bash
 cd ../frontend
 
-# Install dependencies
+# 1. Install frontend dependencies
 npm install
 
-# Start the Vite development server
+# 2. Start the Vite development server
 npm run dev
 ```
-Frontend interface will be live at: `http://localhost:5173`
+* Frontend will be live at: **`http://localhost:5173`**
 
 ---
 
@@ -229,10 +330,12 @@ Frontend interface will be live at: `http://localhost:5173`
 BrailleWise/
 ├── .env.example                     # Environment template configuration
 ├── .gitignore                       # Production git exclusion rules
+├── LICENSE                          # MIT open-source license
 ├── README.md                        # Master project documentation
 ├── backend/
 │   ├── app.py                       # Application factory & Blueprint loader
 │   ├── config.py                    # MongoDB & JWT configuration
+│   ├── database.py                  # PyMongo client & collection bindings
 │   ├── requirements.txt             # Python package dependencies
 │   ├── hardware/                    # Embedded microcode & schematics
 │   │   ├── esp32_braille_device/    # Complete client, mDNS, & BLE firmware
@@ -272,6 +375,67 @@ Contributions are welcome! Please follow these steps:
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
 
+---
+
+## 👤 Author & Connect With Me
+
 <div align="center">
-  <sub>Built with ❤️ for accessible education and digital inclusion.</sub>
+
+### **VEERESH S**
+*AIML Engineering Student • AI/ML Developer • BrailleWise Creator*
+
+<br/>
+
+<p align="center">
+  <a href="https://veeresh-portofoli0.vercel.app/" target="_blank">
+    <img src="https://img.shields.io/badge/🌐%20PORTFOLIO-7B2CFF?style=for-the-badge&logoColor=white" alt="Portfolio"/>
+  </a>
+  &nbsp;
+  <a href="https://www.linkedin.com/in/veeresh-s-anavatti-vrtkp-ttr-163742330" target="_blank">
+    <img src="https://img.shields.io/badge/LinkedIn-C77DFF?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/>
+  </a>
+  &nbsp;
+  <a href="https://www.leetcode.com/veereshska15" target="_blank">
+    <img src="https://img.shields.io/badge/LeetCode-6A1FB3?style=for-the-badge&logo=leetcode&logoColor=white" alt="LeetCode"/>
+  </a>
+  &nbsp;
+  <a href="https://github.com/veereshska15" target="_blank">
+    <img src="https://img.shields.io/badge/GitHub-4B1687?style=for-the-badge&logo=github&logoColor=white" alt="GitHub"/>
+  </a>
+  &nbsp;
+  <a href="mailto:veereshveeru565750@gmail.com">
+    <img src="https://img.shields.io/badge/Email-C77DFF?style=for-the-badge&logo=gmail&logoColor=white" alt="Email"/>
+  </a>
+</p>
+
+<br/>
+
+| Profile Field | Details |
+| :--- | :--- |
+| 🎓 **USN** | `4SF23CI184` |
+| 🏛 **Institution** | **Sahyadri College of Engineering and Management, Mangalore** |
+| 💻 **Specialization** | Artificial Intelligence & Machine Learning (AIML) |
+| 💼 **LinkedIn** | [linkedin.com/in/veeresh-s-anavatti-vrtkp-ttr-163742330](https://www.linkedin.com/in/veeresh-s-anavatti-vrtkp-ttr-163742330) |
+| 🐙 **GitHub** | [@veereshska15](https://github.com/veereshska15) |
+| 🧩 **LeetCode** | [leetcode.com/veereshska15](https://www.leetcode.com/veereshska15) |
+| 🌐 **Portfolio** | [veeresh-portofoli0.vercel.app](https://veeresh-portofoli0.vercel.app/) |
+| 📧 **Email** | [veereshveeru565750@gmail.com](mailto:veereshveeru565750@gmail.com) |
+
+<br/>
+
+> 💬 **Any Enquiries?**  
+> For project discussions, research collaborations, internships, technical queries, or feedback, feel free to reach out through any of the channels above!
+
+</div>
+
+<br/>
+
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:090014,25:1b0633,55:4b1687,80:7b2cff,100:c77dff&height=130&section=footer" width="100%" alt="BrailleWise Purple Footer" />
+
+⠃⠗⠁⠊⠇⠇⠑⠺⠊⠎⠑  
+### **Feel • Hear • Learn**
+*Built with ❤️ for accessible education and digital inclusion.*
+
 </div>
