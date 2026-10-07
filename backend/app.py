@@ -4,6 +4,9 @@ from flask_jwt_extended import JWTManager
 from config import Config
 from utils.logger import get_logger, configure_flask_logging
 from utils.error_handlers import register_error_handlers
+import time
+import sys
+import platform
 from routes.auth_routes import auth_bp
 from routes.learning_content_routes import learning_bp
 from routes.lesson_routes import lesson_bp
@@ -17,6 +20,10 @@ from routes.assessment_routes import assessment_bp
 from routes.dashboard_routes import dashboard_bp
 from routes.challenge_routes import challenge_bp
 from routes.hardware_routes import hardware_bp
+
+# Application metadata
+APP_VERSION = "1.0.0"
+SERVER_START_TIME = time.time()
 
 # Initialize the Flask application
 app = Flask(__name__)
@@ -53,8 +60,6 @@ app.register_blueprint(challenge_bp)
 app.register_blueprint(hardware_bp)
 
 
-
-
 @app.route("/", methods=["GET"])
 def root():
     """
@@ -63,6 +68,42 @@ def root():
     return jsonify({
         "message": "BrailleWise Backend Running"
     })
+
+
+@app.route("/api/health", methods=["GET"])
+def health_check():
+    """
+    Health check endpoint for monitoring and deployment verification.
+    Returns server status, database connectivity, uptime, and version info.
+
+    GET /api/health
+    """
+    uptime_seconds = time.time() - SERVER_START_TIME
+    hours, remainder = divmod(int(uptime_seconds), 3600)
+    minutes, seconds = divmod(remainder, 60)
+
+    # Check database connectivity
+    db_status = "unknown"
+    try:
+        from database import get_database
+        db = get_database()
+        db.command("ping")
+        db_status = "connected"
+    except Exception as e:
+        db_status = f"disconnected ({e})"
+        logger.warning("Health check: database unreachable — %s", e)
+
+    return jsonify({
+        "success": True,
+        "status": "healthy",
+        "version": APP_VERSION,
+        "uptime": f"{hours}h {minutes}m {seconds}s",
+        "uptime_seconds": round(uptime_seconds, 1),
+        "database": db_status,
+        "python_version": sys.version.split()[0],
+        "platform": platform.system(),
+    })
+
 
 if __name__ == "__main__":
     # Start the Flask development server
