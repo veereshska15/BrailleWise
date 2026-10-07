@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config
 from utils.logger import get_logger, configure_flask_logging
+from utils.error_handlers import register_error_handlers
 from routes.auth_routes import auth_bp
 from routes.learning_content_routes import learning_bp
 from routes.lesson_routes import lesson_bp
@@ -32,6 +33,9 @@ jwt = JWTManager(app)
 # Configure structured logging
 logger = get_logger(__name__)
 configure_flask_logging(app)
+
+# Register centralized error handlers
+register_error_handlers(app)
 
 # Register blueprints
 app.register_blueprint(auth_bp)
