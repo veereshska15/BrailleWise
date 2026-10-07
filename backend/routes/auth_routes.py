@@ -3,6 +3,7 @@ from bson.objectid import ObjectId
 from database import get_collection
 from services.auth_service import register_user, login_user
 from utils.auth_decorator import jwt_required, get_current_user_id
+from utils.validators import validate_registration, validate_email
 
 
 
@@ -30,10 +31,12 @@ def register():
     email = data.get("email", "").strip()
     password = data.get("password", "").strip()
 
-    if not name or not email or not password:
+    # Validate all registration fields
+    validation = validate_registration(data)
+    if not validation["valid"]:
         return jsonify({
             "success": False,
-            "message": "All fields are required"
+            "message": "; ".join(validation["errors"])
         }), 400
 
     result = register_user(name, email, password)
@@ -106,6 +109,12 @@ def login():
             return jsonify({
                 "success": False,
                 "message": "Email and password are required"
+            }), 400
+
+        if not validate_email(email):
+            return jsonify({
+                "success": False,
+                "message": "Invalid email address format"
             }), 400
             
         # Authenticate the user via the auth service
