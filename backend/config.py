@@ -25,7 +25,12 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     # Enforce strict production settings
-    pass
+    DEBUG = False
+    TESTING = False
+    
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+    if os.getenv("FLASK_ENV") == "production" and not JWT_SECRET_KEY:
+        raise ValueError("Insecure production configuration: JWT_SECRET_KEY environment variable is required in production.")
 
 class TestingConfig(Config):
     TESTING = True

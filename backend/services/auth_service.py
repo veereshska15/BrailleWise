@@ -120,14 +120,6 @@ def login_user(email, password):
         # Get stored hash
         stored_hash = user_data.get("password")
 
-        # ---------------- DEBUG ----------------
-        print("\n========== LOGIN DEBUG ==========")
-        print("Email Entered     :", normalized_email)
-        print("Password Entered  :", password)
-        print("Stored Hash       :", stored_hash)
-        print("Password Match    :", verify_password(password, stored_hash))
-        print("=================================\n")
-        # ---------------------------------------
 
         # Verify password
         if not verify_password(password, stored_hash):

@@ -25,33 +25,28 @@ def init_db():
     if not mongo_uri:
         mongo_uri = os.getenv("MONGO_URI")
         
-    if not mongo_uri:
-        print("Error: MONGO_URI is not set in config or environment. Please check your .env file.", file=sys.stderr)
-        sys.exit(1)
-        
+    is_placeholder = bool(mongo_uri and ("YOUR_REAL_MONGODB" in mongo_uri or "your_real_mongodb" in mongo_uri.lower()))
+    
+    if mongo_uri and not is_placeholder:
+        try:
+            _client = MongoClient(mongo_uri, serverSelectionTimeoutMS=3000)
+            _client.admin.command("ping")
+            _db = _client.get_database("braillewise")
+            print("MongoDB Atlas Connected Successfully")
+            return _db
+        except Exception as e:
+            print(f"Notice: Configured MongoDB URI failed ({e}). Trying local MongoDB...", file=sys.stderr)
+            
+    # Connect to local MongoDB instance
     try:
-        # Create a reusable MongoClient instance
-        # PyMongo handles connection pooling automatically
-        _client = MongoClient(mongo_uri)
-        
-        # Verify the connection using MongoClient.admin.command("ping")
+        _client = MongoClient("mongodb://127.0.0.1:27017", serverSelectionTimeoutMS=2000)
         _client.admin.command("ping")
-        
-        # Get the database named "braillewise"
         _db = _client.get_database("braillewise")
-        
-        print("MongoDB Atlas Connected Successfully")
+        print("Connected to Local MongoDB (127.0.0.1:27017)")
         return _db
-        
-    except ConnectionFailure as e:
-        print(f"Error: Failed to connect to MongoDB Atlas: {e}", file=sys.stderr)
-        sys.exit(1)
-    except ConfigurationError as e:
-        print(f"Error: MongoDB URI configuration is invalid: {e}", file=sys.stderr)
-        sys.exit(1)
     except Exception as e:
-        print(f"Error: An unexpected database error occurred: {e}", file=sys.stderr)
-        sys.exit(1)
+        print(f"Error: Failed to connect to local MongoDB: {e}", file=sys.stderr)
+        raise ConnectionFailure(f"Failed to connect to MongoDB: {e}")
 
 def get_database():
     """

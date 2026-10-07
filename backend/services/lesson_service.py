@@ -138,6 +138,7 @@ def get_current_letter(user_id):
         content_list = list(content_col.find(query).sort("unlock_order", 1))
         
         if not content_list:
+            from services.hardware_service import REVERSE_BRAILLE_MAP
             lesson_letters_map = {
                 1: ["A", "B", "C", "D", "E", "F"],
                 2: ["G", "H", "I", "J", "K", "L"],
@@ -149,7 +150,7 @@ def get_current_letter(user_id):
                 {
                     "lesson_number": lesson_num_int,
                     "letter": l,
-                    "braille_dots": [1],
+                    "braille_dots": list(REVERSE_BRAILLE_MAP.get(l.lower(), (1,))),
                     "braille_pattern": "⠁",
                     "word": f"Word for {l}",
                     "sentence": f"Sentence for {l}",
@@ -227,6 +228,7 @@ def next_letter(user_id):
         content_list = list(content_col.find(query).sort("unlock_order", 1))
         
         if not content_list:
+            from services.hardware_service import REVERSE_BRAILLE_MAP
             lesson_letters_map = {
                 1: ["A", "B", "C", "D", "E", "F"],
                 2: ["G", "H", "I", "J", "K", "L"],
@@ -238,7 +240,7 @@ def next_letter(user_id):
                 {
                     "lesson_number": lesson_num_int,
                     "letter": l,
-                    "braille_dots": [1],
+                    "braille_dots": list(REVERSE_BRAILLE_MAP.get(l.lower(), (1,))),
                     "braille_pattern": "⠁",
                     "word": f"Word for {l}",
                     "sentence": f"Sentence for {l}",
@@ -332,8 +334,14 @@ def save_user_state(user_id, state_data):
     """
     try:
         progress_col = get_collection("progress")
-        update_fields = {}
-        
+        # Normalize camelCase and snake_case keys from client state
+        if "letterStreaks" in state_data and "letter_streaks" not in state_data:
+            state_data["letter_streaks"] = state_data["letterStreaks"]
+        if "activityLog" in state_data and "activity_log" not in state_data:
+            state_data["activity_log"] = state_data["activityLog"]
+        if "practiceState" in state_data and "practice_state" not in state_data:
+            state_data["practice_state"] = state_data["practiceState"]
+
         for key in ["current_lesson", "current_letter_index", "lesson_status", "completed_lessons", "letter_streaks", "xp", "badges", "activity_log", "practice_state", "lessons"]:
             if key in state_data:
                 update_fields[key] = state_data[key]

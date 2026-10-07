@@ -17,14 +17,6 @@ def register():
     Endpoint: POST /api/auth/register
     """
 
-    # ---------------- Debug ----------------
-    print("\n========== REGISTER REQUEST ==========")
-    print("Content-Type:", request.content_type)
-    print("Raw Data:", request.data)
-    print("Headers:", request.headers)
-    print("JSON:", request.get_json(silent=True))
-    print("======================================\n")
-    # ---------------------------------------
 
     data = request.get_json(silent=True)
 
