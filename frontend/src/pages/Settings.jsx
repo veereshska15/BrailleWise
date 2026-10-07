@@ -9,7 +9,8 @@ import hardwareBridge, {
   isHardwareEnabled, 
   setHardwareEnabled, 
   testHardwareConnection, 
-  clearTactileCell 
+  clearTactileCell,
+  testSingleDot
 } from '../utils/hardwareBridge';
 import './Learn.css';
 
@@ -70,6 +71,18 @@ const Settings = () => {
   const handleClearCell = async () => {
     await clearTactileCell();
     setHardwareTestStatus('Solenoids cleared.');
+  };
+
+  const handleTestDot = async (dotNum) => {
+    setIsTestingHardware(true);
+    setHardwareTestStatus(`Testing Dot ${dotNum}...`);
+    const res = await testSingleDot(dotNum);
+    if (res.success) {
+      setHardwareTestStatus(`✓ Dot ${dotNum} pulsed for ~1s`);
+    } else {
+      setHardwareTestStatus(`✗ Dot ${dotNum} failed: ${res.error || 'Connection error'}`);
+    }
+    setIsTestingHardware(false);
   };
 
   // Load User and Settings
@@ -368,7 +381,7 @@ const Settings = () => {
                         opacity: hardwareEnabled ? 1 : 0.5
                       }}
                     >
-                      {isTestingHardware ? 'Testing...' : '⚡ Test Solenoids'}
+                      {isTestingHardware ? 'Testing...' : '⚡ Test Solenoids (All 6)'}
                     </button>
                     <button 
                       onClick={handleClearCell} 
@@ -388,6 +401,36 @@ const Settings = () => {
                     </button>
                   </div>
 
+                  <div style={{ marginTop: '4px' }}>
+                    <label style={{ display: 'block', fontSize: '11px', color: '#94A3B8', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Test Individual Dots (1s Pulse)
+                    </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '6px' }}>
+                      {[1, 2, 3, 4, 5, 6].map((dot) => (
+                        <button
+                          key={dot}
+                          onClick={() => handleTestDot(dot)}
+                          disabled={isTestingHardware || !hardwareEnabled}
+                          title={`Test Solenoid Dot ${dot}`}
+                          style={{
+                            padding: '8px 0',
+                            background: 'rgba(255,255,255,0.06)',
+                            border: '1px solid rgba(255,255,255,0.12)',
+                            color: '#E2E8F0',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            fontWeight: '600',
+                            cursor: hardwareEnabled ? 'pointer' : 'not-allowed',
+                            opacity: hardwareEnabled ? 1 : 0.5,
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          Dot {dot}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   {hardwareTestStatus && (
                     <div style={{ 
                       padding: '10px 12px', 
@@ -400,6 +443,30 @@ const Settings = () => {
                       {hardwareTestStatus}
                     </div>
                   )}
+
+                  {/* Hardware Power & Safe Architecture Guide */}
+                  <div style={{
+                    marginTop: '8px',
+                    padding: '14px 16px',
+                    borderRadius: '10px',
+                    background: 'rgba(59, 130, 246, 0.08)',
+                    border: '1px solid rgba(59, 130, 246, 0.25)',
+                    fontSize: '12px',
+                    color: '#CBD5E1',
+                    lineHeight: '1.6'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#60A5FA', fontWeight: '700', marginBottom: '8px', fontSize: '13px' }}>
+                      <span>⚡</span> Hardware Power Architecture & Requirements
+                    </div>
+                    <ul style={{ margin: '0', paddingLeft: '18px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                      <li><strong>Control Signals Only:</strong> ESP32 GPIO pins (4, 16, 17, 18, 19, 23) are logic signals only; never power solenoids directly from GPIOs.</li>
+                      <li><strong>Driver Stage Required:</strong> Use the ULN2003 / MOSFET driver between ESP32 GPIO pins and solenoids.</li>
+                      <li><strong>External Power Supply:</strong> Solenoids require an appropriate external DC power supply with adequate current capacity for simultaneous multi-solenoid actuation (min. 2A–3A).</li>
+                      <li><strong>Voltage Matching:</strong> Verify physical solenoid rating (5V vs 12V); do not assume 5V unless confirmed. Use matching voltage on driver power rail.</li>
+                      <li><strong>Common Ground:</strong> External power supply GND must be tied to ESP32 GND.</li>
+                      <li><strong>Safety Isolation:</strong> Never route external solenoid supply voltage into an ESP32 GPIO.</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
 

@@ -214,12 +214,12 @@ BrailleWise employs a tripartite architecture linking the web interface, applica
    Enter / Submit Key ---> | GPIO 17 (In, Pullup)                  |
    Mode Toggle Switch ---> | GPIO 35 (Input Only)                  |
                            |                                       |
-   Solenoid Dot 1 M1A <--- | GPIO 13 (Output)                      |
-   Solenoid Dot 2 M1B <--- | GPIO 12 (Output)                      |
-   Solenoid Dot 3 M2A <--- | GPIO 14 (Output)                      |
-   Solenoid Dot 4 M2B <--- | GPIO 27 (Output)                      |
-   Solenoid Dot 5 M3A <--- | GPIO 26 (Output)                      |
-   Solenoid Dot 6 M3B <--- | GPIO 25 (Output)                      |
+   Solenoid Dot 1 M1A <--- | GPIO 04 (Output)                      |
+   Solenoid Dot 2 M1B <--- | GPIO 16 (Output)                      |
+   Solenoid Dot 3 M2A <--- | GPIO 17 (Output)                      |
+   Solenoid Dot 4 M2B <--- | GPIO 18 (Output)                      |
+   Solenoid Dot 5 M3A <--- | GPIO 19 (Output)                      |
+   Solenoid Dot 6 M3B <--- | GPIO 23 (Output)                      |
                            |                                       |
    Audio Buzzer Signal<--- | GPIO 23 (Output)                      |
    OLED Display SDA   <--- | GPIO 21 (I2C SDA)                     |

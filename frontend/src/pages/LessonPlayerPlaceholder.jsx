@@ -965,7 +965,7 @@ const LessonPlayer = () => {
         </div>
       </div>
 
-      // LessonComplete overlay now shown after passing quiz on result page
+      {/* LessonComplete overlay now shown after passing quiz on result page */}
     </div>
   );
 };
