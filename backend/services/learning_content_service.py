@@ -1,5 +1,8 @@
 from database import get_collection
 from models.learning_content_model import LearningContentModel
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 def seed_if_empty():
     """
@@ -104,9 +107,9 @@ def seed_if_empty():
                     unlock_order=item["unlock_order"]
                 )
                 col.insert_one(model.to_dict())
-            print("Successfully seeded database with Lesson 1 (A-F)")
+            logger.info("Successfully seeded database with Lesson 1 (A-F)")
     except Exception as e:
-        print(f"Error seeding database: {e}")
+        logger.error("Error seeding database: %s", e)
 
 def add_learning_content(data):
     """

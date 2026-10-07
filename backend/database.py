@@ -2,6 +2,9 @@ import os
 import sys
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, ConfigurationError
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 # Ensure environment variables are loaded by importing our configuration
 from config import Config
@@ -32,20 +35,20 @@ def init_db():
             _client = MongoClient(mongo_uri, serverSelectionTimeoutMS=3000)
             _client.admin.command("ping")
             _db = _client.get_database("braillewise")
-            print("MongoDB Atlas Connected Successfully")
+            logger.info("MongoDB Atlas connected successfully")
             return _db
         except Exception as e:
-            print(f"Notice: Configured MongoDB URI failed ({e}). Trying local MongoDB...", file=sys.stderr)
+            logger.warning("Configured MongoDB URI failed (%s). Trying local MongoDB...", e)
             
     # Connect to local MongoDB instance
     try:
         _client = MongoClient("mongodb://127.0.0.1:27017", serverSelectionTimeoutMS=2000)
         _client.admin.command("ping")
         _db = _client.get_database("braillewise")
-        print("Connected to Local MongoDB (127.0.0.1:27017)")
+        logger.info("Connected to local MongoDB (127.0.0.1:27017)")
         return _db
     except Exception as e:
-        print(f"Error: Failed to connect to local MongoDB: {e}", file=sys.stderr)
+        logger.error("Failed to connect to local MongoDB: %s", e)
         raise ConnectionFailure(f"Failed to connect to MongoDB: {e}")
 
 def get_database():

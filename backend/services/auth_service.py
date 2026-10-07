@@ -2,6 +2,9 @@ import bcrypt
 from database import get_collection
 from models.user_model import UserModel
 from flask_jwt_extended import create_access_token
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 def hash_password(password):
@@ -111,7 +114,7 @@ def login_user(email, password):
         user_data = users_collection.find_one({"email": normalized_email})
 
         if not user_data:
-            print("User not found.")
+            logger.debug("Login attempt for non-existent email: %s", normalized_email)
             return {
                 "success": False,
                 "message": "Invalid email or password"
@@ -145,9 +148,7 @@ def login_user(email, password):
         }
 
     except Exception as e:
-        print("\n========== LOGIN ERROR ==========")
-        print(e)
-        print("=================================\n")
+        logger.error("Login error for email '%s': %s", normalized_email, e, exc_info=True)
 
         return {
             "success": False,

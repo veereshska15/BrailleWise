@@ -7,6 +7,9 @@ and cell state generation for physical Braille displays.
 import os
 import json
 import urllib.request
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 BRAILLE_DOT_MAP = {
     (1,): 'a',
@@ -152,14 +155,14 @@ def send_pattern_to_esp32(esp32_ip: str, dots: list):
     """
     target_ip = get_resolved_esp32_ip(esp32_ip)
     clean_dots = normalize_dots_pattern(dots)
-    print(f"[BACKEND HARDWARE TRACE] Sending pattern to ESP32 | Target IP: {target_ip} | Clean Dots: {clean_dots}")
+    logger.info("Sending pattern to ESP32 | Target: %s | Dots: %s", target_ip, clean_dots)
     url = f"http://{target_ip.replace('http://', '').rstrip('/')}/set-pattern"
     payload = json.dumps({"dots": clean_dots}).encode("utf-8")
     req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"}, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=3) as resp:
             resp_data = json.loads(resp.read().decode("utf-8"))
-            print(f"[BACKEND HARDWARE TRACE] ESP32 Response: {resp_data}")
+            logger.debug("ESP32 response: %s", resp_data)
             return {
                 "success": True,
                 "status": "ok",
@@ -173,7 +176,7 @@ def send_pattern_to_esp32(esp32_ip: str, dots: list):
             for dev_id, dev_info in ACTIVE_DEVICES.items():
                 if dev_info.get("ip") and dev_info["ip"] != target_ip:
                     return send_pattern_to_esp32(dev_info["ip"], clean_dots)
-        print(f"[BACKEND HARDWARE TRACE] ESP32 Request Failed: {e}")
+        logger.error("ESP32 request failed (target: %s): %s", target_ip, e)
         return {
             "success": False,
             "status": "error",
@@ -188,7 +191,7 @@ def test_hardware_gpio(esp32_ip: str, test_name: str):
     bypassing all A-Z mappings.
     """
     target_ip = get_resolved_esp32_ip(esp32_ip)
-    print(f"[BACKEND HARDWARE TRACE] Running Direct Hardware Test: '{test_name}' on {target_ip}")
+    logger.info("Running direct hardware test '%s' on %s", test_name, target_ip)
     url = f"http://{target_ip.replace('http://', '').rstrip('/')}/test-hardware?test={test_name.upper()}"
     req = urllib.request.Request(url, data=b"{}", headers={"Content-Type": "application/json"}, method="POST")
     try:
@@ -215,7 +218,7 @@ def test_hardware_channel(esp32_ip: str, channel: int):
     Directly activates an individual channel 1..6 for isolation testing.
     """
     target_ip = get_resolved_esp32_ip(esp32_ip)
-    print(f"[BACKEND HARDWARE TRACE] Testing Individual Channel Dot {channel} on {target_ip}")
+    logger.info("Testing individual channel dot %d on %s", channel, target_ip)
     url = f"http://{target_ip.replace('http://', '').rstrip('/')}/test-channel?ch={channel}"
     req = urllib.request.Request(url, data=b"{}", headers={"Content-Type": "application/json"}, method="POST")
     try:

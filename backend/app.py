@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from config import Config
+from utils.logger import get_logger, configure_flask_logging
 from routes.auth_routes import auth_bp
 from routes.learning_content_routes import learning_bp
 from routes.lesson_routes import lesson_bp
@@ -27,6 +28,10 @@ app.config.from_object(Config)
 
 # Initialize the Flask-JWT-Extended manager
 jwt = JWTManager(app)
+
+# Configure structured logging
+logger = get_logger(__name__)
+configure_flask_logging(app)
 
 # Register blueprints
 app.register_blueprint(auth_bp)
@@ -57,4 +62,5 @@ def root():
 
 if __name__ == "__main__":
     # Start the Flask development server
+    logger.info("Starting BrailleWise backend on http://0.0.0.0:5000")
     app.run(host="0.0.0.0", port=5000, debug=True, use_reloader=False)

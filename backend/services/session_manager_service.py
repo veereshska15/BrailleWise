@@ -1,4 +1,5 @@
 from datetime import datetime
+from utils.logger import get_logger
 from database import get_collection
 from services.adaptive_learning_service import (
     get_next_learning_step,
@@ -44,12 +45,9 @@ def start_learning_session(user_id):
     # Ensure letters list is unique and maintains order
     letters = list(dict.fromkeys(letters))
 
-    print("========== DEBUG ==========")
-    print("USER ID:", user_id)
-    print("CURRENT LESSON:", current_lesson)
-    print("STEP:", step)
-    print("LESSON TO USE:", lesson_to_use)
-    print("===========================")
+    logger = get_logger(__name__)
+    logger.debug("Session context | user=%s lesson=%s step=%s using=%s",
+                 user_id, current_lesson, step, lesson_to_use)
 
     # 4. Generate dynamic properties
     estimated_time = f"{len(letters) * 2} minutes"

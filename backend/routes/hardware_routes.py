@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify
+from utils.logger import get_logger
 from services.hardware_service import (
     process_hardware_input,
     get_braille_cell_pattern,
@@ -9,6 +10,8 @@ from services.hardware_service import (
     test_hardware_gpio,
     test_hardware_channel
 )
+
+logger = get_logger(__name__)
 
 hardware_bp = Blueprint("hardware_bp", __name__, url_prefix="/api/hardware")
 
@@ -130,7 +133,7 @@ def esp32_set_pattern():
             [0, 0, 0, 0, 0, 0]
         )
         letter = data.get("letter", "")
-        print(f"[BACKEND HARDWARE TRACE] Received pattern request | Letter: '{letter}' | Dots: {dots} | Target IP: {esp32_ip}")
+        logger.info("Received pattern request | Letter: '%s' | Dots: %s | Target: %s", letter, dots, esp32_ip)
 
         result = send_pattern_to_esp32(
             esp32_ip,
