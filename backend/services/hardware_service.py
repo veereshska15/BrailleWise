@@ -4,6 +4,9 @@ BrailleWise Hardware Service
 Handles hardware input parsing, Braille chord translation validation,
 and cell state generation for physical Braille displays.
 """
+import os
+import json
+import urllib.request
 
 BRAILLE_DOT_MAP = {
     (1,): 'a',
@@ -100,46 +103,164 @@ def get_hardware_status(device_id: str = None):
 
 def get_resolved_esp32_ip(provided_ip: str = None):
     """
-    Returns the target ESP32 host/IP: prefers an announced live IP,
-    or falls back to provided_ip / braillewise.local.
+    Returns the target ESP32 host/IP:
+    1. If user provided a specific host/IP (and not empty / localhost / legacy placeholder), use it.
+    2. Otherwise, prefer an auto-announced live IP from ACTIVE_DEVICES.
+    3. Fall back to ESP32_HOST environment variable or "braillewise.local" (mDNS).
     """
+    if provided_ip:
+        cleaned = str(provided_ip).strip()
+        if cleaned and cleaned not in ["10.92.41.10", "127.0.0.1", "localhost", ""]:
+            return cleaned
+
     for dev_id, dev_info in ACTIVE_DEVICES.items():
         if dev_info.get("ip"):
             return dev_info["ip"]
-    if provided_ip and provided_ip not in ["10.92.41.10", "127.0.0.1", ""]:
-        return provided_ip
-    return "braillewise.local"
+
+    return os.getenv("ESP32_HOST", "braillewise.local")
+
+def normalize_dots_pattern(dots):
+    """
+    Normalizes any dot representation into a standardized 6-element binary array:
+    [Dot1, Dot2, Dot3, Dot4, Dot5, Dot6] where 1 = active, 0 = inactive.
+    Supports:
+    - 6-element binary list: [1, 0, 0, 1, 0, 0] -> [1, 0, 0, 1, 0, 0]
+    - List of 1-indexed dot numbers: [1, 4] -> [1, 0, 0, 1, 0, 0]
+    - Empty list [] -> [0, 0, 0, 0, 0, 0]
+    """
+    if not dots or not isinstance(dots, (list, tuple)):
+        return [0, 0, 0, 0, 0, 0]
+
+    # If it is already a 6-element list where all elements are 0 or 1
+    if len(dots) == 6 and all(d in (0, 1, True, False) for d in dots):
+        return [1 if d else 0 for d in dots]
+
+    # Otherwise, treat as active dot numbers (1 to 6)
+    arr = [0, 0, 0, 0, 0, 0]
+    for d in dots:
+        try:
+            val = int(d)
+            if 1 <= val <= 6:
+                arr[val - 1] = 1
+        except (ValueError, TypeError):
+            pass
+    return arr
 
 def send_pattern_to_esp32(esp32_ip: str, dots: list):
     """
-    Sends a 6-element binary list (e.g. [1, 0, 1, 0, 0, 1]) to the ESP32 REST server.
+    Sends a standardized 6-element binary list (e.g. [1, 0, 1, 0, 0, 1]) to the ESP32 REST server.
     """
-    import urllib.request
-    import json
-
     target_ip = get_resolved_esp32_ip(esp32_ip)
+    clean_dots = normalize_dots_pattern(dots)
+    print(f"[BACKEND HARDWARE TRACE] Sending pattern to ESP32 | Target IP: {target_ip} | Clean Dots: {clean_dots}")
     url = f"http://{target_ip.replace('http://', '').rstrip('/')}/set-pattern"
-    payload = json.dumps({"dots": dots}).encode("utf-8")
+    payload = json.dumps({"dots": clean_dots}).encode("utf-8")
     req = urllib.request.Request(url, data=payload, headers={"Content-Type": "application/json"}, method="POST")
     try:
         with urllib.request.urlopen(req, timeout=3) as resp:
             resp_data = json.loads(resp.read().decode("utf-8"))
-            return {"success": True, "esp32_response": resp_data, "dots_sent": dots, "target_host": target_ip}
+            print(f"[BACKEND HARDWARE TRACE] ESP32 Response: {resp_data}")
+            return {
+                "success": True,
+                "status": "ok",
+                "esp32_response": resp_data,
+                "dots_sent": clean_dots,
+                "target_host": target_ip
+            }
     except Exception as e:
         # If mDNS failed and an announced IP is available, retry with it
         if target_ip == "braillewise.local":
             for dev_id, dev_info in ACTIVE_DEVICES.items():
                 if dev_info.get("ip") and dev_info["ip"] != target_ip:
-                    return send_pattern_to_esp32(dev_info["ip"], dots)
-        return {"success": False, "error": str(e), "target_host": target_ip}
+                    return send_pattern_to_esp32(dev_info["ip"], clean_dots)
+        print(f"[BACKEND HARDWARE TRACE] ESP32 Request Failed: {e}")
+        return {
+            "success": False,
+            "status": "error",
+            "error": str(e),
+            "message": str(e),
+            "target_host": target_ip
+        }
+
+def test_hardware_gpio(esp32_ip: str, test_name: str):
+    """
+    Directly invokes dedicated hardware test (C: GPIO13+27, D: GPIO13+27+26, F: GPIO13+12+27)
+    bypassing all A-Z mappings.
+    """
+    target_ip = get_resolved_esp32_ip(esp32_ip)
+    print(f"[BACKEND HARDWARE TRACE] Running Direct Hardware Test: '{test_name}' on {target_ip}")
+    url = f"http://{target_ip.replace('http://', '').rstrip('/')}/test-hardware?test={test_name.upper()}"
+    req = urllib.request.Request(url, data=b"{}", headers={"Content-Type": "application/json"}, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=4) as resp:
+            resp_data = json.loads(resp.read().decode("utf-8"))
+            return {
+                "success": True,
+                "status": "ok",
+                "test": test_name.upper(),
+                "esp32_response": resp_data,
+                "target_host": target_ip
+            }
+    except Exception as e:
+        return {
+            "success": False,
+            "status": "error",
+            "test": test_name.upper(),
+            "error": str(e),
+            "target_host": target_ip
+        }
+
+def test_hardware_channel(esp32_ip: str, channel: int):
+    """
+    Directly activates an individual channel 1..6 for isolation testing.
+    """
+    target_ip = get_resolved_esp32_ip(esp32_ip)
+    print(f"[BACKEND HARDWARE TRACE] Testing Individual Channel Dot {channel} on {target_ip}")
+    url = f"http://{target_ip.replace('http://', '').rstrip('/')}/test-channel?ch={channel}"
+    req = urllib.request.Request(url, data=b"{}", headers={"Content-Type": "application/json"}, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=3) as resp:
+            resp_data = json.loads(resp.read().decode("utf-8"))
+            return {
+                "success": True,
+                "status": "ok",
+                "channel": channel,
+                "esp32_response": resp_data,
+                "target_host": target_ip
+            }
+    except Exception as e:
+        return {
+            "success": False,
+            "status": "error",
+            "channel": channel,
+            "error": str(e),
+            "target_host": target_ip
+        }
+
+def test_solenoids_on_esp32(esp32_ip: str):
+    """
+    Sends a test request to ESP32 to pulse all 6 solenoids for 800ms.
+    """
+    target_ip = get_resolved_esp32_ip(esp32_ip)
+    url = f"http://{target_ip.replace('http://', '').rstrip('/')}/test-solenoids"
+    req = urllib.request.Request(url, data=b"{}", headers={"Content-Type": "application/json"}, method="POST")
+    try:
+        with urllib.request.urlopen(req, timeout=4) as resp:
+            resp_data = json.loads(resp.read().decode("utf-8"))
+            return {
+                "success": True,
+                "status": "ok",
+                "esp32_response": resp_data,
+                "target_host": target_ip
+            }
+    except Exception as e:
+        # Fallback to sending [1, 1, 1, 1, 1, 1] via set-pattern
+        return send_pattern_to_esp32(esp32_ip, [1, 1, 1, 1, 1, 1])
 
 def read_buttons_from_esp32(esp32_ip: str):
     """
     Reads the 6 button states from the ESP32 REST server and maps them to Braille.
     """
-    import urllib.request
-    import json
-
     target_ip = get_resolved_esp32_ip(esp32_ip)
     url = f"http://{target_ip.replace('http://', '').rstrip('/')}/read-buttons"
     req = urllib.request.Request(url, method="GET")
@@ -152,11 +273,19 @@ def read_buttons_from_esp32(esp32_ip: str):
             char = BRAILLE_DOT_MAP.get(dots_tuple, "")
             return {
                 "success": True,
+                "status": "ok",
                 "dots": dots_raw,
                 "dots_pressed": dots_pressed,
                 "translated_character": char,
                 "target_host": target_ip
             }
     except Exception as e:
-        return {"success": False, "error": str(e), "target_host": target_ip}
+        return {
+            "success": False,
+            "status": "error",
+            "error": str(e),
+            "message": str(e),
+            "target_host": target_ip
+        }
+
 

@@ -15,14 +15,14 @@ const char* BACKEND_URL = "http://172.27.81.38:5000/api/hardware";
 // =====================================================
 // SIX SOLENOIDS (Tactile Braille Cell Output)
 // =====================================================
-// Solenoid 1 / M1A = GPIO 4  (ESP32 D4)
-// Solenoid 2 / M1B = GPIO 16 (ESP32 RX2)
-// Solenoid 3 / M2A = GPIO 17 (ESP32 TX2)
+// Solenoid 1 / M1A = GPIO 15 (ESP32 D15)
+// Solenoid 2 / M1B = GPIO 2  (ESP32 D2)
+// Solenoid 3 / M2A = GPIO 4  (ESP32 D4)
 // Solenoid 4 / M2B = GPIO 18 (ESP32 D18)
 // Solenoid 5 / M3A = GPIO 19 (ESP32 D19)
 // Solenoid 6 / M3B = GPIO 23 (ESP32 D23)
 
-const int solenoidPins[6] = { 4, 16, 17, 18, 19, 23 };
+const int solenoidPins[6] = { 15, 2, 4, 18, 19, 23 };
 
 // Coil Protection Watchdog
 unsigned long solenoidActiveStartTime = 0;
@@ -67,23 +67,23 @@ void logGpioStates(const int dots[6]) {
   Serial.println("[ESP32]");
   Serial.printf("Pattern: [%d, %d, %d, %d, %d, %d]\n", dots[0], dots[1], dots[2], dots[3], dots[4], dots[5]);
   Serial.printf("Active solenoids: %d\n", activeCount);
-  Serial.printf("GPIO4: %s\n", dots[0] ? "HIGH" : "LOW");
-  Serial.printf("GPIO16: %s\n", dots[1] ? "HIGH" : "LOW");
-  Serial.printf("GPIO17: %s\n", dots[2] ? "HIGH" : "LOW");
+  Serial.printf("GPIO15: %s\n", dots[0] ? "HIGH" : "LOW");
+  Serial.printf("GPIO2: %s\n", dots[1] ? "HIGH" : "LOW");
+  Serial.printf("GPIO4: %s\n", dots[2] ? "HIGH" : "LOW");
   Serial.printf("GPIO18: %s\n", dots[3] ? "HIGH" : "LOW");
   Serial.printf("GPIO19: %s\n", dots[4] ? "HIGH" : "LOW");
   Serial.printf("GPIO23: %s\n", dots[5] ? "HIGH" : "LOW");
 
-  Serial.printf("GPIO4 = %s\n", dots[0] ? "HIGH" : "LOW");
-  Serial.printf("GPIO16 = %s\n", dots[1] ? "HIGH" : "LOW");
-  Serial.printf("GPIO17 = %s\n", dots[2] ? "HIGH" : "LOW");
+  Serial.printf("GPIO15 = %s\n", dots[0] ? "HIGH" : "LOW");
+  Serial.printf("GPIO2 = %s\n", dots[1] ? "HIGH" : "LOW");
+  Serial.printf("GPIO4 = %s\n", dots[2] ? "HIGH" : "LOW");
   Serial.printf("GPIO18 = %s\n", dots[3] ? "HIGH" : "LOW");
   Serial.printf("GPIO19 = %s\n", dots[4] ? "HIGH" : "LOW");
   Serial.printf("GPIO23 = %s\n", dots[5] ? "HIGH" : "LOW");
 
-  Serial.printf("4=%s\n", dots[0] ? "HIGH" : "LOW");
-  Serial.printf("16=%s\n", dots[1] ? "HIGH" : "LOW");
-  Serial.printf("17=%s\n", dots[2] ? "HIGH" : "LOW");
+  Serial.printf("15=%s\n", dots[0] ? "HIGH" : "LOW");
+  Serial.printf("2=%s\n", dots[1] ? "HIGH" : "LOW");
+  Serial.printf("4=%s\n", dots[2] ? "HIGH" : "LOW");
   Serial.printf("18=%s\n", dots[3] ? "HIGH" : "LOW");
   Serial.printf("19=%s\n", dots[4] ? "HIGH" : "LOW");
   Serial.printf("23=%s\n", dots[5] ? "HIGH" : "LOW");
@@ -180,12 +180,9 @@ void handleSetPattern() {
     finalDots[0], finalDots[1], finalDots[2], finalDots[3], finalDots[4], finalDots[5]);
 
   // Set every required GPIO simultaneously without delay() between individual writes
-  digitalWrite(4,  finalDots[0] ? HIGH : LOW);
-  digitalWrite(16, finalDots[1] ? HIGH : LOW);
-  digitalWrite(17, finalDots[2] ? HIGH : LOW);
-  digitalWrite(18, finalDots[3] ? HIGH : LOW);
-  digitalWrite(19, finalDots[4] ? HIGH : LOW);
-  digitalWrite(23, finalDots[5] ? HIGH : LOW);
+  for (int i = 0; i < 6; i++) {
+    digitalWrite(solenoidPins[i], finalDots[i] ? HIGH : LOW);
+  }
 
   anySolenoidActive = (finalDots[0] || finalDots[1] || finalDots[2] || finalDots[3] || finalDots[4] || finalDots[5]);
   if (anySolenoidActive) {
@@ -200,9 +197,9 @@ void handleSetPattern() {
 // =====================================================
 // DEDICATED HARDWARE GPIO TESTS (Bypasses A-Z mappings)
 // =====================================================
-// Test 1 (C): GPIO4 + GPIO18 for 1000ms
-// Test 2 (D): GPIO4 + GPIO18 + GPIO19 for 1000ms
-// Test 3 (F): GPIO4 + GPIO16 + GPIO18 for 1000ms
+// Test 1 (C): GPIO15 + GPIO18 for 1000ms
+// Test 2 (D): GPIO15 + GPIO18 + GPIO19 for 1000ms
+// Test 3 (F): GPIO15 + GPIO2 + GPIO18 for 1000ms
 // =====================================================
 void runHardwareTest(char testId) {
   // Before every test: turn all solenoids OFF
@@ -212,11 +209,11 @@ void runHardwareTest(char testId) {
   if (testId == 'C' || testId == 'c') {
     Serial.println();
     Serial.println("TEST C HARDWARE");
-    Serial.println("GPIO4 HIGH");
+    Serial.println("GPIO15 HIGH");
     Serial.println("GPIO18 HIGH");
 
     // Set required GPIO HIGH without delay() between writes
-    digitalWrite(4, HIGH);
+    digitalWrite(15, HIGH);
     digitalWrite(18, HIGH);
 
     delay(1000);
@@ -228,12 +225,12 @@ void runHardwareTest(char testId) {
   else if (testId == 'D' || testId == 'd') {
     Serial.println();
     Serial.println("TEST D HARDWARE");
-    Serial.println("GPIO4 HIGH");
+    Serial.println("GPIO15 HIGH");
     Serial.println("GPIO18 HIGH");
     Serial.println("GPIO19 HIGH");
 
     // Set required GPIO HIGH without delay() between writes
-    digitalWrite(4, HIGH);
+    digitalWrite(15, HIGH);
     digitalWrite(18, HIGH);
     digitalWrite(19, HIGH);
 
@@ -246,13 +243,13 @@ void runHardwareTest(char testId) {
   else if (testId == 'F' || testId == 'f') {
     Serial.println();
     Serial.println("TEST F HARDWARE");
-    Serial.println("GPIO4 HIGH");
-    Serial.println("GPIO16 HIGH");
+    Serial.println("GPIO15 HIGH");
+    Serial.println("GPIO2 HIGH");
     Serial.println("GPIO18 HIGH");
 
     // Set required GPIO HIGH without delay() between writes
-    digitalWrite(4, HIGH);
-    digitalWrite(16, HIGH);
+    digitalWrite(15, HIGH);
+    digitalWrite(2, HIGH);
     digitalWrite(18, HIGH);
 
     delay(1000);
@@ -291,6 +288,17 @@ void handleTestChannel() {
   int ch = 1;
   if (server.hasArg("ch")) {
     ch = server.arg("ch").toInt();
+  } else if (server.hasArg("plain")) {
+    String body = server.arg("plain");
+    int idx = body.indexOf("\"ch\"");
+    if (idx != -1) {
+      int colon = body.indexOf(':', idx);
+      if (colon != -1) {
+        String val = body.substring(colon + 1);
+        val.trim();
+        ch = val.toInt();
+      }
+    }
   }
   if (ch < 1 || ch > 6) ch = 1;
 
@@ -376,9 +384,9 @@ void setup() {
   Serial.println("==================================================");
   Serial.println("BRAILLEWISE ESP32");
   Serial.println("Solenoid GPIO Mapping:");
-  Serial.println("Dot 1 = GPIO4");
-  Serial.println("Dot 2 = GPIO16");
-  Serial.println("Dot 3 = GPIO17");
+  Serial.println("Dot 1 = GPIO15");
+  Serial.println("Dot 2 = GPIO2");
+  Serial.println("Dot 3 = GPIO4");
   Serial.println("Dot 4 = GPIO18");
   Serial.println("Dot 5 = GPIO19");
   Serial.println("Dot 6 = GPIO23");

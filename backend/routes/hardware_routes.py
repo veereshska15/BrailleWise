@@ -4,7 +4,10 @@ from services.hardware_service import (
     get_braille_cell_pattern,
     get_hardware_status,
     send_pattern_to_esp32,
-    read_buttons_from_esp32
+    read_buttons_from_esp32,
+    test_solenoids_on_esp32,
+    test_hardware_gpio,
+    test_hardware_channel
 )
 
 hardware_bp = Blueprint("hardware_bp", __name__, url_prefix="/api/hardware")
@@ -118,14 +121,16 @@ def esp32_set_pattern():
     try:
         data = request.get_json(silent=True) or {}
 
-        # Your currently connected ESP32
-        esp32_ip = data.get("ip", "10.92.41.10")
+        # Resolves automatically via mDNS, active registration, or request body
+        esp32_ip = data.get("ip") or data.get("esp32_ip")
 
         # Six-dot binary pattern
         dots = data.get(
             "dots",
             [0, 0, 0, 0, 0, 0]
         )
+        letter = data.get("letter", "")
+        print(f"[BACKEND HARDWARE TRACE] Received pattern request | Letter: '{letter}' | Dots: {dots} | Target IP: {esp32_ip}")
 
         result = send_pattern_to_esp32(
             esp32_ip,
@@ -139,6 +144,38 @@ def esp32_set_pattern():
             "success": False,
             "message": str(e)
         }), 400
+
+
+@hardware_bp.route("/esp32/test-hardware", methods=["POST", "GET"])
+def esp32_test_hardware():
+    """
+    POST/GET /api/hardware/esp32/test-hardware?test=C
+    Runs dedicated hardware tests bypassing Braille A-Z translation.
+    """
+    try:
+        data = request.get_json(silent=True) or {}
+        test_name = request.args.get("test") or data.get("test", "C")
+        esp32_ip = request.args.get("ip") or data.get("ip")
+        result = test_hardware_gpio(esp32_ip, test_name)
+        return jsonify(result), 200 if result.get("success") else 502
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+
+@hardware_bp.route("/esp32/test-channel", methods=["POST", "GET"])
+def esp32_test_channel():
+    """
+    POST/GET /api/hardware/esp32/test-channel?ch=1
+    Tests individual channel (1..6) in isolation.
+    """
+    try:
+        data = request.get_json(silent=True) or {}
+        channel = int(request.args.get("ch") or data.get("ch", 1))
+        esp32_ip = request.args.get("ip") or data.get("ip")
+        result = test_hardware_channel(esp32_ip, channel)
+        return jsonify(result), 200 if result.get("success") else 502
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
 
 
 # ----------------------------------------------------------------------
@@ -155,11 +192,8 @@ def esp32_read_buttons():
     10.92.41.10
     """
     try:
-        # Use the connected ESP32 by default
-        esp32_ip = request.args.get(
-            "ip",
-            "10.92.41.10"
-        )
+        # Resolves automatically via mDNS, active registration, or query param
+        esp32_ip = request.args.get("ip") or request.args.get("esp32_ip")
 
         result = read_buttons_from_esp32(
             esp32_ip
@@ -172,3 +206,29 @@ def esp32_read_buttons():
             "success": False,
             "message": str(e)
         }), 400
+
+
+# ----------------------------------------------------------------------
+# 6. TEST SOLENOIDS ON ESP32 (ALL 6 SIMULTANEOUSLY FOR 800MS)
+# ----------------------------------------------------------------------
+@hardware_bp.route("/esp32/test-solenoids", methods=["POST", "GET"])
+def esp32_test_solenoids():
+    """
+    POST/GET /api/hardware/esp32/test-solenoids
+
+    Activates ALL SIX solenoids simultaneously for ~800ms, then releases all OFF.
+    """
+    try:
+        data = request.get_json(silent=True) or {}
+        esp32_ip = data.get("ip") or data.get("esp32_ip") or request.args.get("ip") or request.args.get("esp32_ip")
+
+        result = test_solenoids_on_esp32(esp32_ip)
+
+        return jsonify(result), 200 if result.get("success") else 502
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": str(e)
+        }), 400
+

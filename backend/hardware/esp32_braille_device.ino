@@ -30,7 +30,7 @@
 const char* WIFI_SSID = ".";
 const char* WIFI_PASS = "12345677";
 // Automatically points to your PC's active Wi-Fi IP and Flask backend port 5000:
-const char* BACKEND_URL = "http://10.26.213.38:5000/api/hardware";
+const char* BACKEND_URL = "http://10.63.180.38:5000/api/hardware";
 
 // Web Server instance on port 80
 WebServer server(80);
@@ -39,16 +39,13 @@ WebServer server(80);
 // OUTPUT PINS: 6 Tactile Solenoid Actuators (Dots 1-6)
 // ---------------------------------------------------------------------------------
 // Standard Wiring (Motor Driver M1A-M3B / ULN2003 / MOSFETs):
-// Solenoid 1 (Dot 1) → M1A → GPIO 13
-// Solenoid 2 (Dot 2) → M1B → GPIO 12
-// Solenoid 3 (Dot 3) → M2A → GPIO 14
-// Solenoid 4 (Dot 4) → M2B → GPIO 27
-// Solenoid 5 (Dot 5) → M3A → GPIO 26
-// Solenoid 6 (Dot 6) → M3B → GPIO 25
-const int solenoidPins[6] = { 13, 12, 14, 27, 26, 25 };
-
-// (Alternate Schematic from docs/hardware_setup.md Section 3.A:
-//  const int solenoidPins[6] = { 15, 2, 4, 16, 17, 5 }; )
+// Solenoid 1 (Dot 1) → M1A → GPIO 4
+// Solenoid 2 (Dot 2) → M1B → GPIO 16
+// Solenoid 3 (Dot 3) → M2A → GPIO 17
+// Solenoid 4 (Dot 4) → M2B → GPIO 18
+// Solenoid 5 (Dot 5) → M3A → GPIO 19
+// Solenoid 6 (Dot 6) → M3B → GPIO 23
+const int solenoidPins[6] = { 4, 16, 17, 18, 19, 23 };
 
 // ---------------------------------------------------------------------------------
 // INPUT PINS: 6 Perkins Keyboard Buttons (Dots 1-6, Active LOW with internal pullups)
@@ -101,8 +98,8 @@ const BrailleMapping BRAILLE_TABLE[] = {
   { 0b001010, 'i' }, { 0b011010, 'j' }, { 0b000101, 'k' }, { 0b000111, 'l' },
   { 0b001101, 'm' }, { 0b011101, 'n' }, { 0b010101, 'o' }, { 0b001111, 'p' },
   { 0b011111, 'q' }, { 0b010111, 'r' }, { 0b001110, 's' }, { 0b011110, 't' },
-  { 0b100101, 'u' }, { 0b100111, 'v' }, { 0b011100, 'w' }, { 0b101101, 'x' },
-  { 0b111101, 'y' }, { 0b100110, 'z' }
+  { 0b100101, 'u' }, { 0b100111, 'v' }, { 0b111010, 'w' }, { 0b101101, 'x' },
+  { 0b111101, 'y' }, { 0b110101, 'z' }
 };
 const size_t BRAILLE_TABLE_SIZE = sizeof(BRAILLE_TABLE) / sizeof(BRAILLE_TABLE[0]);
 
@@ -113,15 +110,29 @@ bool isChording = false;
 // =================================================================================
 // 3. SOLENOID CONTROL FUNCTIONS
 // =================================================================================
+// Solenoid safety timeout tracking
+unsigned long solenoidActiveStartTime = 0;
+const unsigned long SOLENOID_SAFETY_MAX_MS = 2500; // Auto-release solenoids if active > 2.5s to protect coils
+bool anySolenoidActive = false;
+
 void allSolenoidsOff() {
   for (int i = 0; i < 6; i++) {
     digitalWrite(solenoidPins[i], LOW);
   }
+  anySolenoidActive = false;
+  solenoidActiveStartTime = 0;
 }
 
 void applySolenoidPattern(bool dots[6]) {
+  anySolenoidActive = false;
   for (int i = 0; i < 6; i++) {
     digitalWrite(solenoidPins[i], dots[i] ? HIGH : LOW);
+    if (dots[i]) anySolenoidActive = true;
+  }
+  if (anySolenoidActive) {
+    solenoidActiveStartTime = millis();
+  } else {
+    solenoidActiveStartTime = 0;
   }
 }
 
@@ -189,6 +200,7 @@ void handleSetPattern() {
 
   bool dots[6] = { false, false, false, false, false, false };
   bool parsed = false;
+  char targetChar = '\0';
 
   int start = body.indexOf('[');
   int end = (start != -1) ? body.indexOf(']', start) : -1;
@@ -229,9 +241,28 @@ void handleSetPattern() {
     }
 
     if (elementCount == 6) {
-      // 6-dot full binary mask: [d1, d2, d3, d4, d5, d6]
+      // Check if this is a 6-element binary mask (every element is strictly 0 or 1)
+      bool allBinary = true;
       for (int i = 0; i < 6; i++) {
-        dots[i] = (elements[i] == 1);
+        if (elements[i] != 0 && elements[i] != 1) {
+          allBinary = false;
+          break;
+        }
+      }
+
+      if (allBinary) {
+        // [d1, d2, d3, d4, d5, d6] where 1 = active, 0 = inactive
+        for (int i = 0; i < 6; i++) {
+          dots[i] = (elements[i] == 1);
+        }
+      } else {
+        // All 6 dot numbers specified: e.g. [1, 2, 3, 4, 5, 6]
+        for (int i = 0; i < 6; i++) {
+          int dotNum = elements[i];
+          if (dotNum >= 1 && dotNum <= 6) {
+            dots[dotNum - 1] = true;
+          }
+        }
       }
       parsed = true;
     } else if (elementCount > 0) {
@@ -249,23 +280,28 @@ void handleSetPattern() {
     }
   } else {
     // Check if a character or letter was sent: {"character": "a"} or {"letter": "a"} or "a"
-    char targetChar = '\0';
-    int charIdx = body.indexOf("\"character\":");
-    if (charIdx == -1) charIdx = body.indexOf("\"char\":");
-    if (charIdx == -1) charIdx = body.indexOf("\"letter\":");
-
-    if (charIdx != -1) {
-      int valStart = body.indexOf('"', charIdx + 8);
-      if (valStart != -1) {
-        int valEnd = body.indexOf('"', valStart + 1);
-        if (valEnd != -1 && valEnd > valStart) {
-          String cStr = body.substring(valStart + 1, valEnd);
-          cStr.trim();
-          if (cStr.length() > 0) targetChar = tolower(cStr[0]);
+    targetChar = '\0';
+    int colonIdx = body.indexOf(':');
+    if (colonIdx != -1) {
+      int firstQuote = body.indexOf('"', colonIdx);
+      if (firstQuote != -1) {
+        int secondQuote = body.indexOf('"', firstQuote + 1);
+        if (secondQuote != -1 && secondQuote > firstQuote) {
+          String val = body.substring(firstQuote + 1, secondQuote);
+          val.trim();
+          if (val.length() > 0 && isalpha(val[0])) {
+            targetChar = tolower(val[0]);
+          }
         }
       }
-    } else if (body.length() == 1 && isalpha(body[0])) {
-      targetChar = tolower(body[0]);
+    }
+    if (targetChar == '\0') {
+      for (unsigned int i = 0; i < body.length(); i++) {
+        if (isalpha(body[i])) {
+          targetChar = tolower(body[i]);
+          break;
+        }
+      }
     }
 
     if (targetChar >= 'a' && targetChar <= 'z') {
@@ -289,13 +325,87 @@ void handleSetPattern() {
 
   // Apply pattern to physical solenoids
   applySolenoidPattern(dots);
-  for (int i = 0; i < 6; i++) {
-    Serial.printf("  Solenoid %d (GPIO %d) -> %s\n", i + 1, solenoidPins[i], dots[i] ? "ON" : "OFF");
+
+  // Determine letter character for diagnostic output
+  char letterDisplay = (targetChar >= 'a' && targetChar <= 'z') ? toupper(targetChar) : ' ';
+  if (letterDisplay == ' ') {
+    uint8_t currentPatternMask = 0;
+    for (int d = 0; d < 6; d++) {
+      if (dots[d]) currentPatternMask |= (1 << d);
+    }
+    for (size_t t = 0; t < BRAILLE_TABLE_SIZE; t++) {
+      if (BRAILLE_TABLE[t].chordMask == currentPatternMask) {
+        letterDisplay = toupper(BRAILLE_TABLE[t].character);
+        break;
+      }
+    }
   }
+
+  // Diagnostic serial output (Requested format)
+  Serial.println();
+  if (letterDisplay != ' ') {
+    Serial.printf("Letter: %c\n", letterDisplay);
+  } else {
+    Serial.println("Letter: Custom");
+  }
+
+  Serial.print("Dots:");
+  bool hasAnyDot = false;
+  for (int d = 0; d < 6; d++) {
+    if (dots[d]) {
+      Serial.printf(" %d", d + 1);
+      hasAnyDot = true;
+    }
+  }
+  if (!hasAnyDot) Serial.print(" None");
+  Serial.println();
+
+  Serial.print("GPIO:");
+  bool hasAnyGpio = false;
+  for (int d = 0; d < 6; d++) {
+    if (dots[d]) {
+      Serial.printf(" %d", solenoidPins[d]);
+      hasAnyGpio = true;
+    }
+  }
+  if (!hasAnyGpio) Serial.print(" None");
+  Serial.println();
+
+  Serial.print("Solenoids:");
+  for (int d = 0; d < 6; d++) {
+    Serial.printf(" %s", dots[d] ? "ON" : "OFF");
+  }
+  Serial.println();
 
   playTone(1000, 50);
   updateDisplay("Tactile Output", "Pattern Set");
   server.send(200, "application/json", "{\"status\":\"ok\"}");
+}
+
+void handleTestSolenoids() {
+  sendCorsHeaders();
+  Serial.println();
+  Serial.println("=================================================");
+  Serial.println("Test Solenoids");
+  Serial.println("-> GPIO13 ON");
+  Serial.println("-> GPIO12 ON");
+  Serial.println("-> GPIO14 ON");
+  Serial.println("-> GPIO27 ON");
+  Serial.println("-> GPIO26 ON");
+  Serial.println("-> GPIO25 ON");
+  Serial.println("-> wait 800 ms");
+
+  bool allDots[6] = { true, true, true, true, true, true };
+  applySolenoidPattern(allDots);
+
+  delay(800);
+
+  allSolenoidsOff();
+  Serial.println("-> all OFF");
+  Serial.println("=================================================");
+  Serial.println();
+
+  server.send(200, "application/json", "{\"status\":\"ok\",\"message\":\"All 6 solenoids pulsed for 800ms\"}");
 }
 
 void handleReadButtons() {
@@ -346,28 +456,39 @@ void sendCharacter(char c) {
   }
 }
 
+// Non-blocking Action Button debounce state
+unsigned long lastActionPressTime = 0;
+const unsigned long ACTION_DEBOUNCE_MS = 250;
+
 void handleActionButtons() {
+  unsigned long now = millis();
+  if (now - lastActionPressTime < ACTION_DEBOUNCE_MS) return;
+
   if (digitalRead(PIN_SPACE) == LOW) {
+    lastActionPressTime = now;
     playTone(600, 50);
     sendCharacter(' ');
     updateDisplay("Action", "SPACE");
-    delay(200);
   }
   else if (digitalRead(PIN_BACKSPACE) == LOW) {
+    lastActionPressTime = now;
     playTone(400, 50);
     if (isWifiMode) sendBackendApi("\b", 0);
     else if (bleKeyboard.isConnected()) bleKeyboard.write(KEY_BACKSPACE);
     updateDisplay("Action", "BACKSPACE");
-    delay(200);
   }
   else if (digitalRead(PIN_ENTER) == LOW) {
+    lastActionPressTime = now;
     playTone(1200, 100);
     if (isWifiMode) sendBackendApi("\n", 0);
     else if (bleKeyboard.isConnected()) bleKeyboard.write(KEY_RETURN);
     updateDisplay("Action", "ENTER");
-    delay(200);
   }
 }
+
+// Non-blocking chord release settling debounce
+unsigned long chordReleaseStartTime = 0;
+const unsigned long CHORD_SETTLE_MS = 40; // Require release to be stable for 40ms before emitting chord
 
 void handleChordingInput() {
   uint8_t currentTickMask = 0;
@@ -378,34 +499,43 @@ void handleChordingInput() {
     }
   }
 
+  unsigned long now = millis();
+
   if (currentTickMask > 0) {
     isChording = true;
     currentChordMask |= currentTickMask;
+    chordReleaseStartTime = 0; // Reset release timer
   } 
   else if (isChording) {
-    char matchedChar = decodeChord(currentChordMask);
-
-    if (matchedChar != '\0') {
-      Serial.printf("[Chord] Mask: 0b%06b -> Char: '%c'\n", currentChordMask, matchedChar);
-      playTone(900, 60);
-
-      // Actuate solenoids to echo back typed letter
-      for (int i = 0; i < 6; i++) {
-        digitalWrite(solenoidPins[i], (currentChordMask & (1 << i)) ? HIGH : LOW);
-      }
-      sendCharacter(matchedChar);
-
-      String statusMsg = "Char: '";
-      statusMsg += matchedChar;
-      statusMsg += "'";
-      updateDisplay("Braille Input", statusMsg.c_str());
-    } else {
-      playTone(300, 150);
-      updateDisplay("Braille Input", "Unknown");
+    if (chordReleaseStartTime == 0) {
+      chordReleaseStartTime = now; // Start release settling timer
     }
+    else if (now - chordReleaseStartTime >= CHORD_SETTLE_MS) {
+      char matchedChar = decodeChord(currentChordMask);
 
-    currentChordMask = 0;
-    isChording = false;
+      if (matchedChar != '\0') {
+        Serial.printf("[Chord] Mask: 0b%06b -> Char: '%c'\n", currentChordMask, matchedChar);
+        playTone(900, 60);
+
+        // Actuate solenoids to echo back typed letter
+        for (int i = 0; i < 6; i++) {
+          digitalWrite(solenoidPins[i], (currentChordMask & (1 << i)) ? HIGH : LOW);
+        }
+        sendCharacter(matchedChar);
+
+        String statusMsg = "Char: '";
+        statusMsg += matchedChar;
+        statusMsg += "'";
+        updateDisplay("Braille Input", statusMsg.c_str());
+      } else {
+        playTone(300, 150);
+        updateDisplay("Braille Input", "Unknown");
+      }
+
+      currentChordMask = 0;
+      isChording = false;
+      chordReleaseStartTime = 0;
+    }
   }
 }
 
@@ -492,8 +622,8 @@ void setup() {
     display.display();
   }
 
-  // Operating Mode: Default to Wi-Fi HTTP Server (or BLE if PIN_MODE_SW is pulled LOW)
-  isWifiMode = (digitalRead(PIN_MODE_SW) != LOW);
+  // Operating Mode: Default to Wi-Fi HTTP Server (or BLE if PIN_MODE_SW is driven HIGH)
+  isWifiMode = (digitalRead(PIN_MODE_SW) != HIGH);
 
   if (isWifiMode) {
     connectWifi();
@@ -502,6 +632,9 @@ void setup() {
     server.on("/", HTTP_GET, handleRoot);
     server.on("/set-pattern", HTTP_OPTIONS, handleOptions);
     server.on("/set-pattern", HTTP_POST, handleSetPattern);
+    server.on("/test-solenoids", HTTP_OPTIONS, handleOptions);
+    server.on("/test-solenoids", HTTP_GET, handleTestSolenoids);
+    server.on("/test-solenoids", HTTP_POST, handleTestSolenoids);
     server.on("/read-buttons", HTTP_OPTIONS, handleOptions);
     server.on("/read-buttons", HTTP_GET, handleReadButtons);
     server.begin();
@@ -523,11 +656,15 @@ void loop() {
     server.handleClient();
   }
 
-  // Process Action Buttons
+  // Process Action Buttons (non-blocking)
   handleActionButtons();
 
-  // Process Perkins Chords
+  // Process Perkins Chords (non-blocking)
   handleChordingInput();
 
-  delay(10);
+  // Solenoid safety auto-release timeout (protects coils against continuous power)
+  if (anySolenoidActive && (millis() - solenoidActiveStartTime >= SOLENOID_SAFETY_MAX_MS)) {
+    allSolenoidsOff();
+    Serial.println("[Safety] Solenoid auto-release timeout triggered (coils protected).");
+  }
 }
